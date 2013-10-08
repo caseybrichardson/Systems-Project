@@ -1,0 +1,22 @@
+
+Phase 1/CCLI/bin/load
+
+Phase 1/CCLI/bin/assemble
+
+Phase 1/CCLI/bin/debug
+
+Phase 1/CCLI/bin/directory
+
+Phase 1/CCLI/bin/dump
+
+Phase 1/CCLI/bin/execute
+
+Phase 1/CCLI/bin/help
+
+*.out
+
+Phase 1/cli
+
+Phase 1/todo
+
+*.sublime-workspace

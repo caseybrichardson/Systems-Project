@@ -1,0 +1,10 @@
+To recompile CCLI programs run:
+	make programs
+	or
+	make <program name>
+
+To recompile the prompt:
+	make build
+
+To recompile entire project:
+	make all

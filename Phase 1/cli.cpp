@@ -21,6 +21,7 @@ using namespace std;
 int main(int argc, char **argv)
 {
 	string input;
+	string clearStr("clear");
 	string exitStr("exit");
 
 	system("clear");
@@ -45,12 +46,15 @@ int main(int argc, char **argv)
 			{
 				break;
 			}
+			else if(cstr::cstrcmp(command[0], clearStr))
+			{
+				system("clear");
+			}
 			else
 			{
 				if(commandExists(command[0]))
 				{
 					string builtCommand = "./CCLI/bin/" + command[0] + " " + buildParamString(command);
-					cout << builtCommand << endl;
 					system(builtCommand.c_str());
 				}
 				else

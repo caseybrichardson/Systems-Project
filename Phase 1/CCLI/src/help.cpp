@@ -18,12 +18,12 @@ using namespace std;
 
 string commands[] = {
 	"load 		<filename> 			- loads the specified file",
-	"execute 					- executes the previously loaded file",
+	"execute 					- executes the loaded file",
 	"debug 						- allows use of the debugger",
 	"dump 		<start> <end>			- dumps the loaded program",
-	"help 						- gives information on available commands",
-	"assemble 	<filename> 			- assembles program and saves to file",
-	"directory 					- lists the files in the current directory",
+	"help 		[opt]<command>			- gives information on commands",
+	"assemble 	<filename> 			- assembles program into file",
+	"directory 					- lists the files in current directory",
 	"exit 						- exits the CCLI"
 };
 
@@ -40,11 +40,11 @@ int main(int argc, char **argv)
 	}
 	else
 	{
-		string arg(argv[1]);
+		string currArg(argv[1]);
 
 		for(int i = 0; i < 8; i++)
 		{
-			if(cstr::cstrcmp(arg, commands[i]))
+			if(cstr::cstrcmp(currArg, commands[i]))
 				display(i);
 		}
 	}

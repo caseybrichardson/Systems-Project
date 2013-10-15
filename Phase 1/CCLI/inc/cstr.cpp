@@ -38,7 +38,7 @@ vector<string> cstr::tokenizeCommand(string &input)
 		if(!inWord)
 		{
             // If the character is not a whitespace character then we start making a new word.
-			if(currChar != ' ' || currChar != '\t')
+			if(currChar != ' ' && currChar != '\t')
 			{
 				beginWord = i;
 				inWord = true;

@@ -134,3 +134,15 @@ int cstr::cstrlen(char *input)
 
 	return i;
 }
+
+string cstr::upper(string str)
+{
+	transform(str.begin(), str.end(), str.begin(), ::toupper);
+	return str;
+}
+
+string cstr::lower(string str)
+{
+	transform(str.begin(), str.end(), str.begin(), ::tolower);
+	return str;
+}

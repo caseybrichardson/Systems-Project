@@ -25,7 +25,7 @@ help:
 	$(CC) ./CCLI/src/help.cpp CCLI/inc/cstr.cpp $(INCLUDES) -o help; mv help ./CCLI/bin/
 
 assemble:
-	$(CC) ./CCLI/src/assemble.cpp CCLI/inc/cstr.cpp $(INCLUDES) -o assemble; mv assemble ./CCLI/bin/
+	$(CC) ./CCLI/src/assemble.cpp CCLI/inc/assemblerStr.cpp CCLI/inc/cstr.cpp CCLI/inc/assembler.cpp $(INCLUDES) -o assemble; mv assemble ./CCLI/bin/
 
 directory:
 	$(CC) ./CCLI/src/directory.cpp CCLI/inc/cstr.cpp $(INCLUDES) -o directory; mv directory ./CCLI/bin/

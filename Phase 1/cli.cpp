@@ -22,6 +22,7 @@ int main(int argc, char **argv)
 {
 	string input;
 	string clearStr("clear");
+	string buildStr("make");
 	string exitStr("exit");
 
 	system("clear");
@@ -49,6 +50,10 @@ int main(int argc, char **argv)
 			else if(cstr::cstrcmp(command[0], clearStr))
 			{
 				system("clear");
+			}
+			else if(cstr::cstrcmp(command[0], buildStr))
+			{
+				system(input.c_str());
 			}
 			else
 			{

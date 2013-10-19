@@ -11,11 +11,26 @@
 
 #include <iostream>
 #include <cstdlib>
+#include <fstream>
+#include <map>
+#include <vector>
+#include <cctype>
+
+#include "assembler.h"
 
 using namespace std;
 
 int main(int argc, char **argv)
 {
-	cout << "The \'assemble\' program is not yet implemented." << endl;
+	if(argc == 1)
+	{
+		cout << "Missing filename!" << endl;
+	}
+	else if(argc >= 2)
+	{
+		string filename(argv[1]);
+		assembler asmblr(filename);
+	}
+
 	return 0;
 }

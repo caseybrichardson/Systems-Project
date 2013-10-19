@@ -24,6 +24,8 @@ public:
 	static bool cstrcmp(string &input1, string &input2);
 	static bool cstrcmpchar(char *input1, char *input2);
 	static int cstrlen(char *input);
+	static string upper(string str);
+	static string lower(string str);
 };
 
 #endif

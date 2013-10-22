@@ -20,3 +20,9 @@ Phase 1/cli
 Phase 1/todo
 
 *.sublime-workspace
+
+*.listing
+
+*.object
+
+*.output

@@ -257,7 +257,7 @@ string assembler::createIntermediateLine(int &loc, vector<string> &line, string 
 							update = num;
 
 							if(type == 'x'){
-								if(num % 2 != 0 || num >= 32) {
+								if((num + 1) % 2 != 0 || num >= 32) {
 									cout << endl << num << endl;
 									warnings << errors["illegalOperand"] << " ";
 								}

@@ -14,6 +14,7 @@
 
 #include <iostream>
 #include <iomanip>
+#include <cmath>
 #include <climits>
 #include <fstream>
 #include <sstream>
@@ -58,6 +59,8 @@ private:
 
 	void passOne();
 	void passTwo();
+
+	void printSymbols();
 
 	string createIntermediateLine(int &loc, vector<string> &line, string &origLine);
 

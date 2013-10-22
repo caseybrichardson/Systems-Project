@@ -191,6 +191,21 @@ void assembler::passTwo()
 }
 
 /**
+ * Prints out the symbol file.
+ */
+void assembler::printSymbols()
+{
+	ofstream symbolsFile((parsingFilename + ".symbols").c_str());
+
+	map<string, int>::iterator itr;
+
+	for(itr = symbols.begin(); itr != symbols.end(); ++itr)
+	{
+		symbolsFile << itr->first << "\t" << hex << itr->second << endl;
+	}
+}
+
+/**
  * Creates and returns the 
  * @param  loc - A reference to the locctr.
  * @param  line - A vector of the tokenized and validated source statement.
@@ -214,7 +229,7 @@ string assembler::createIntermediateLine(int &loc, vector<string> &line, string 
 			{
 				if(cstr::cstrcmp(opcode, end)) {
 					if(loc - startAddress > MAX_PROG_SIZE) {
-						warnings << hex << errors["programTooLong"] << " ";
+						warnings << "0x" << setw(6) << hex << errors["programTooLong"] << " ";
 					}
 				} else {
 					update = 3;
@@ -224,21 +239,21 @@ string assembler::createIntermediateLine(int &loc, vector<string> &line, string 
 			case 3:
 			{
 				if(loc == -99) {
-					warnings << hex << errors["illegalStart"] << " "; 
+					warnings << "0x" << setw(6) << hex << errors["illegalStart"] << " "; 
 				}
 
 				if(!checkSymbolMapForKey(line[0])) {
 					symbols[line[0]] = loc; 
 
 					if(symbols.size() > 500) {
-						warnings << hex << errors["tooManySymbols"] << " ";
+						warnings << "0x" << setw(6) << hex << errors["tooManySymbols"] << " ";
 					}
 
 					if(!isalpha(line[0][0])) {
-						warnings << hex << errors["illegalLabel"] << " ";
+						warnings << "0x" << setw(6) << hex << errors["illegalLabel"] << " ";
 					}
 				} else {
-					warnings << hex << errors["duplicateLabel"] << " "; 
+					warnings << "0x" << setw(6) << hex << errors["duplicateLabel"] << " "; 
 				}
 
 				if(opcodeExists) {
@@ -252,7 +267,7 @@ string assembler::createIntermediateLine(int &loc, vector<string> &line, string 
 						if(num != INT_MIN) {
 							update = num;
 						} else {
-							warnings << hex << errors["illegalOperand"] << " ";
+							warnings << "0x" << setw(6) << hex << errors["illegalOperand"] << " ";
 						}
 					} else if(cstr::cstrcmp(opcode, resw)) {
 						int num = cstr::convertStringToIntWithBase(line[2], 10);
@@ -260,10 +275,10 @@ string assembler::createIntermediateLine(int &loc, vector<string> &line, string 
 						if(num != INT_MIN) {
 							update = 3 * num; 
 						} else { 
-							warnings << hex << errors["illegalOperand"] << " "; 
+							warnings << "0x" << setw(6) << hex << errors["illegalOperand"] << " "; 
 						}
 					} else if(cstr::cstrcmp(opcode, byte)) {
-						int num = astr::numberBytesFromLiteral(line[2]);
+						int num = astr::numberCharsFromLiteral(line[2]);
 
 						if(num != INT_MIN) {
 							char type = line[2][0];
@@ -271,23 +286,24 @@ string assembler::createIntermediateLine(int &loc, vector<string> &line, string 
 							update = num;
 
 							if(type == 'x'){
-								if((num + 1) % 2 != 0 || num >= 32) {
-									warnings << hex << errors["illegalOperand"] << " ";
+								update /= 2;
+								if(num % 2 != 0 || num >= 32) {
+									warnings << "0x" << setw(6) << hex << errors["illegalOperand"] << " ";
 								}
 							} else if(type == 'c') {
 								if(num > 30) {
-									warnings << hex << errors["illegalOperand"] << " ";
+									warnings << "0x" << setw(6) << hex << errors["illegalOperand"] << " ";
 								}
 							} else {
-								warnings << hex << errors["illegalOperand"] << " ";
+								warnings << "0x" << setw(6) << hex << errors["illegalOperand"] << " ";
 							}
 						} else {
 							update = 3;
-							warnings << hex << errors["illegalOperand"] << " ";
+							warnings << "0x" << setw(6) << hex << errors["illegalOperand"] << " ";
 						}
 					} else {
 						update = 3;
-						warnings << hex << errors["illegalOperation"] << " ";
+						warnings << "0x" << setw(6) << hex << errors["illegalOperation"] << " ";
 					}
 				}
 
@@ -297,24 +313,26 @@ string assembler::createIntermediateLine(int &loc, vector<string> &line, string 
 		}
 	} else {
 		if(loc != -99) {
-			warnings << hex << errors["redefinedStart"] << " "; 
+			warnings << "0x" << setw(6) << hex << errors["redefinedStart"] << " "; 
 		}
 
 		loc = startAddress = cstr::convertStringToIntWithBase(line[2], 16);
 		if(loc == INT_MIN) {
-			warnings << hex << errors["illegalOperand"] << " "; 
+			warnings << "0x" << setw(6) << hex << errors["illegalOperand"] << " "; 
 		}
 
 		symbols[line[0]] = loc;
 	}
 	
-	stream << setw(18) << astr::buildString(line) << "\t";
+	stream << setw(4) << hex << loc << "\t" << setw(18) << astr::buildString(line) << "\t";
 	if(opcodeExists) {
 		stream << "0x" << setw(2) << setfill('0') << hex << opcodes[opcode].hexCode << "\t";
 	} else {
 		stream << "    \t";
 	}
-	stream << setw(4) << hex << loc << "\t" << warnings.str() << endl;
+
+	string warn = warnings.str();
+	stream << (warn.length() != 0 ? warn : "0") << "\t#" << endl;
 
 	loc += update;
 	
@@ -346,6 +364,9 @@ assembler::assembler(string filename)
 		byte 	= "byte";
 
 		passOne();
+
+		printSymbols();
+
 		passTwo();
 	}
 }

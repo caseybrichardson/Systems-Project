@@ -30,7 +30,7 @@ class astr{
 public:
 	static vector<string> tokenizeStatement(string &input, int numItems);
 	static string buildString(const vector<string> &params);
-	static int numberBytesFromLiteral(string &input);
+	static int numberCharsFromLiteral(string &input);
 };
 
 #endif

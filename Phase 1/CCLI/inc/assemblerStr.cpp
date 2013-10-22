@@ -93,18 +93,16 @@ string astr::buildString(const vector<string> &params)
  * @param  input - The literal value.
  * @return The number of bytes in the literal.
  */
-int astr::numberBytesFromLiteral(string &input)
+int astr::numberCharsFromLiteral(string &input)
 {
 	int num_bytes = 0;
 
 	if(input[1] == '\'' && input[input.length() - 1] == '\'' && (input[0] == 'c' || input[0] == 'x'))
 	{
-		for(int i = 2; isalnum(input[i]); i++)
+		for(int i = 2; isalnum(input[i]) || isspace(input[i]); i++)
 		{
 			num_bytes++;
 		}
-
-		num_bytes /= (input[0] == 'x' ? 2 : 1);
 
 		return num_bytes;
 	}

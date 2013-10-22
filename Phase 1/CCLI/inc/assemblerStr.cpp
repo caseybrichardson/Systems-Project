@@ -1,8 +1,26 @@
 
+/**
+ *	Name:	Casey Richardson
+ *	SID: 	20056054
+ *	Date: 	9/17/2013
+ *	Prof:	David Egle
+ *	Class:	CSCI 3334
+ */
+
+
+//////////////////////////////////////////////////////////////////
+// This file serves to be a specialized string library serving  //
+// the purpose of assisting with assembler string functions     //
+//////////////////////////////////////////////////////////////////
+
+
 #include "assemblerStr.h"
 
 /**
- *	String function that breaks the string according to its whitespace.
+ * Tokenizes a source line from an assembly file.
+ * @param  input - The source line.
+ * @param  numItems - The number of expected items in the passed in line.
+ * @return A vector containing the tokens from the string.
  */
 vector<string> astr::tokenizeStatement(string &input, int numItems)
 {
@@ -50,6 +68,11 @@ vector<string> astr::tokenizeStatement(string &input, int numItems)
 	return output;
 }
 
+/**
+ * Concantenates and returns a vector of strings.
+ * @param  params - A vector of strings that are from a tokenized string.
+ * @return A concantenated string made up of the values from the passed in vector.
+ */
 string astr::buildString(const vector<string> &params)
 {
 	string paramString;
@@ -60,4 +83,30 @@ string astr::buildString(const vector<string> &params)
 	}
 
 	return paramString;
+}
+
+/**
+ * Takes an input that contains a literal value and returns the number of bytes contained in it.
+ * @param  input - The literal value.
+ * @return The number of bytes in the literal.
+ */
+int astr::numberBytesFromLiteral(string &input)
+{
+	int num_bytes = 0;
+
+	if(input[1] == '\'' && input[input.length() - 1] == '\'' && (input[0] == 'c' || input[0] == 'x'))
+	{
+		for(int i = 2; isalnum(input[i]); i++)
+		{
+			num_bytes++;
+		}
+
+		num_bytes /= (input[0] == 'x' ? 2 : 1);
+
+		return num_bytes;
+	}
+	else
+	{
+		return INT_MIN;
+	}
 }

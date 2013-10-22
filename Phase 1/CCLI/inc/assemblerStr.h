@@ -5,9 +5,12 @@
  *	Date: 	9/17/2013
  *	Prof:	David Egle
  *	Class:	CSCI 3334
- *
- *	File: This file serves as an all-purpose reusable string utility class. The name "cstr" stands for "Casey String."
  */
+
+//////////////////////////////////////////////////////////////////
+// This file serves to be a specialized string library serving  //
+// the purpose of assisting with assembler string functions     //
+//////////////////////////////////////////////////////////////////
 
 #ifndef A_STR
 #define A_STR
@@ -15,6 +18,8 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <locale>
+#include <climits>
 
 #include "cstr.h"
 
@@ -24,6 +29,7 @@ class astr{
 public:
 	static vector<string> tokenizeStatement(string &input, int numItems);
 	static string buildString(const vector<string> &params);
+	static int numberBytesFromLiteral(string &input);
 };
 
 #endif

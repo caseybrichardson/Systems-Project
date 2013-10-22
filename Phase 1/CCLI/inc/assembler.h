@@ -1,12 +1,27 @@
 
+/**
+ *	Name:	Casey Richardson
+ *	SID: 	20056054
+ *	Date: 	9/17/2013
+ *	Prof:	David Egle
+ *	Class:	CSCI 3334
+ */
+
+////////////////////////////////////////////////////////////////////
+// This file acts as the sole processor of assembly files.        //
+// It contains the logic for all parts of the two-pass assembler. //
+////////////////////////////////////////////////////////////////////
+
 #include <iostream>
 #include <iomanip>
+#include <climits>
 #include <fstream>
 #include <sstream>
 #include <string>
 #include <vector>
 #include <map>
 
+#include "cstr.h"
 #include "assemblerStr.h"
 
 using namespace std;
@@ -19,6 +34,13 @@ private:
 	map<string, int> errors;
 	string parsingFilename;
 	ifstream *parsingFile;
+
+	string start;
+	string end;
+	string word;
+	string resb;
+	string resw;
+	string byte;
 
 	opcode createOpcode(int numArgs, int code);
 	
@@ -35,7 +57,7 @@ private:
 	void passOne();
 	void passTwo();
 
-	string createIntermediateLine(ofstream &listing, int &loc, vector<string> &line, string &origLine);
+	string createIntermediateLine(int &loc, vector<string> &line, string &origLine);
 
 	void addSymbolToMap(string &key, int location);
 

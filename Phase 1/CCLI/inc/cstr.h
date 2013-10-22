@@ -5,14 +5,19 @@
  *	Date: 	9/17/2013
  *	Prof:	David Egle
  *	Class:	CSCI 3334
- *
- *	File: This file serves as an all-purpose reusable string utility class. The name "cstr" stands for "Casey String."
  */
+
+//////////////////////////////////////////////////////////////////
+// This file serves to be a general purpose replacement string  //
+// library (I don't claim this to be in any fashion better)     //
+//////////////////////////////////////////////////////////////////
 
 #ifndef C_STR
 #define C_STR
 
 #include <iostream>
+#include <cstdlib>
+#include <climits>
 #include <vector>
 
 using namespace std;
@@ -26,6 +31,8 @@ public:
 	static int cstrlen(char *input);
 	static string upper(string str);
 	static string lower(string str);
+	static int convertStringToInt(string &input);
+	static int convertStringToIntWithBase(string &input, int b);
 };
 
 #endif

@@ -5,9 +5,12 @@
  *	Date: 	9/17/2013
  *	Prof:	David Egle
  *	Class:	CSCI 3334
- *
- *	File: This file is the main point of the interface.
  */
+
+/////////////////////////////////////////////////////
+// This file acts as the main entry point for the  //
+// interface and handles all program requests.     //
+/////////////////////////////////////////////////////
 
 #include <iostream>
 #include <cstdlib>

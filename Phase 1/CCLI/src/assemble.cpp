@@ -5,16 +5,15 @@
  *	Date: 	9/17/2013
  *	Prof:	David Egle
  *	Class:	CSCI 3334
- *
- *	File: This file contains the logic for the assemble program.
  */
+
+//////////////////////////////////////////////////////////////////
+// This file acts as the entry point for the assemble program.  //
+// It handles no logic of the actual file processing.           //
+//////////////////////////////////////////////////////////////////
 
 #include <iostream>
 #include <cstdlib>
-#include <fstream>
-#include <map>
-#include <vector>
-#include <cctype>
 
 #include "assembler.h"
 

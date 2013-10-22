@@ -5,12 +5,12 @@
  *	Date: 	9/17/2013
  *	Prof:	David Egle
  *	Class:	CSCI 3334
- *
- *	File: This file serves as an all-purpose reusable string utility class. The name "cstr" stands for "Casey String."
  */
 
-#include <iostream>
-#include <vector>
+//////////////////////////////////////////////////////////////////
+// This file serves to be a general purpose replacement string  //
+// library (I don't claim this to be in any fashion better)     //
+//////////////////////////////////////////////////////////////////
 
 #include "cstr.h"
 
@@ -63,6 +63,14 @@ vector<string> cstr::tokenizeCommand(string &input)
 /**
  *	String function that returns a substring of the input string.
  */
+
+/**
+ * String function that returns a substring of the input string.
+ * @param  input - The source string.
+ * @param  begin - The index for the beginning of the substring.
+ * @param  end - The index for the end of the substring.
+ * @return The substring as defined by the begin and end parameters within the input parameter.
+ */
 string cstr::csubstr(string &input, int begin, int end)
 {
 	if(end <= input.length())
@@ -87,6 +95,12 @@ string cstr::csubstr(string &input, int begin, int end)
 	}
 }
 
+/**
+ * Casey String Comparison, checks if two strings are equal to one another by comparing their length and char sequence.
+ * @param  input1 - The first string to compare.
+ * @param  input2 - The second string to compare.
+ * @return A bool representing whether or not the the strings are equal.
+ */
 bool cstr::cstrcmp(string &input1, string &input2)
 {
 	if(input1.length() != input2.length())
@@ -105,6 +119,12 @@ bool cstr::cstrcmp(string &input1, string &input2)
 	}
 }
 
+/**
+ * Casey String Comparison for Character Strings, checks if two character arrays are equal by comparing their length and char sequence.
+ * @param  input1 - The first char array to compare.
+ * @param  input2 - The second char array to compare.
+ * @return A bool representing whether or not the char arrays are equal.
+ */
 bool cstr::cstrcmpchar(char *input1, char *input2)
 {
 	if(cstrlen(input1) != cstrlen(input2))
@@ -135,14 +155,50 @@ int cstr::cstrlen(char *input)
 	return i;
 }
 
+/**
+ * Takes a string and capitalizes all alphabetic characters within it.
+ * @param  str - The string to transform.
+ * @return The capitalized string.
+ */
 string cstr::upper(string str)
 {
 	transform(str.begin(), str.end(), str.begin(), ::toupper);
 	return str;
 }
 
+/**
+ * Takes a string and makes all alphabetic characters within it lower case.
+ * @param  str - The string to transform.
+ * @return The lower case string.
+ */
 string cstr::lower(string str)
 {
 	transform(str.begin(), str.end(), str.begin(), ::tolower);
 	return str;
+}
+
+/**
+ * Takes a string and extracts the number inside it.
+ * @param  input - The string that contains the number.
+ * @return The number in the string.
+ */
+int cstr::convertStringToInt(string &input)
+{
+	return convertStringToIntWithBase(input, 0);
+}
+
+/**
+ * Takes a string that has a number of a certain base and extracts it.
+ * @param  input - The string that contains the number.
+ * @param  b - The base we are looking for.
+ * @return The number in the string.
+ */
+int cstr::convertStringToIntWithBase(string &input, int b)
+{
+	char *end;
+
+	int num = strtol(input.c_str(), &end, b);
+
+	if(!*end) { return num; }
+	else { return INT_MIN; }
 }

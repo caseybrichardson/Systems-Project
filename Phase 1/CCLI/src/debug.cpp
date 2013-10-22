@@ -5,9 +5,11 @@
  *	Date: 	9/17/2013
  *	Prof:	David Egle
  *	Class:	CSCI 3334
- *
- *	File: This file contains the logic for the debug program.
  */
+
+//////////////////////////////////////////////////////////////////
+// This file acts as the entry point for the debug program.     //
+//////////////////////////////////////////////////////////////////
 
 #include <iostream>
 #include <cstdlib>

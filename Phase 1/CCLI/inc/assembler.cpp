@@ -230,6 +230,10 @@ string assembler::createIntermediateLine(int &loc, vector<string> &line, string 
 				if(!checkSymbolMapForKey(line[0])) {
 					symbols[line[0]] = loc; 
 
+					if(symbols.size() > 500) {
+						warnings << hex << errors["tooManySymbols"] << " ";
+					}
+
 					if(!isalpha(line[0][0])) {
 						warnings << hex << errors["illegalLabel"] << " ";
 					}
@@ -268,20 +272,20 @@ string assembler::createIntermediateLine(int &loc, vector<string> &line, string 
 
 							if(type == 'x'){
 								if((num + 1) % 2 != 0 || num >= 32) {
-									cout << endl << num << endl;
 									warnings << hex << errors["illegalOperand"] << " ";
 								}
 							} else if(type == 'c') {
 								if(num > 30) {
 									warnings << hex << errors["illegalOperand"] << " ";
 								}
+							} else {
+								warnings << hex << errors["illegalOperand"] << " ";
 							}
 						} else {
 							update = 3;
 							warnings << hex << errors["illegalOperand"] << " ";
 						}
 					} else {
-						cout << "EHAHSDFHASHDFAHSDFH";
 						update = 3;
 						warnings << hex << errors["illegalOperation"] << " ";
 					}

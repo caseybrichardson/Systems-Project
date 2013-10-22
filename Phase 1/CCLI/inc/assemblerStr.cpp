@@ -13,7 +13,6 @@
 // the purpose of assisting with assembler string functions     //
 //////////////////////////////////////////////////////////////////
 
-
 #include "assemblerStr.h"
 
 /**
@@ -32,6 +31,7 @@ vector<string> astr::tokenizeStatement(string &input, int numItems)
 	int beginWord;
 	int endWord;
 	bool inWord = false;
+	bool inQuotes = false;
 
 	for(int i = 0; i <= input.length(); i++)
 	{
@@ -42,11 +42,14 @@ vector<string> astr::tokenizeStatement(string &input, int numItems)
 			break;
 		}
 
+		if(currChar == '\'' || currChar == '\"')
+			inQuotes = !inQuotes;
+
         // Make sure that we're not currently inside a word.
 		if(!inWord)
 		{
             // If the character is not a whitespace character then we start making a new word.
-			if(currChar != ' ' && currChar != '\t')
+			if(isalnum(currChar))
 			{
 				beginWord = i;
 				inWord = true;
@@ -55,7 +58,7 @@ vector<string> astr::tokenizeStatement(string &input, int numItems)
 		else
 		{
             // Checks if the current character is some form of whitespace.
-			if(currChar == ' ' || currChar == '\t' || currChar == '\0')
+			if((isspace(currChar) || iscntrl(currChar)) && !inQuotes)
 			{
 				endWord = i;
 				inWord = false;

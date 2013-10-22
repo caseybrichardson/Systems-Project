@@ -20,6 +20,7 @@
 #include <vector>
 #include <locale>
 #include <climits>
+#include <cctype>
 
 #include "cstr.h"
 

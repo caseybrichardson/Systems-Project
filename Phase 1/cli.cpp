@@ -24,8 +24,10 @@ using namespace std;
 int main(int argc, char **argv)
 {
 	string input;
+	string lastCommand;
 	string clearStr("clear");
 	string buildStr("make");
+	string lastStr("!!");
 	string exitStr("exit");
 
 	system("clear");
@@ -52,17 +54,29 @@ int main(int argc, char **argv)
 			}
 			else if(cstr::cstrcmp(command[0], clearStr))
 			{
+				lastCommand = clearStr;
 				system("clear");
 			}
 			else if(cstr::cstrcmp(command[0], buildStr))
 			{
+				lastCommand = input.c_str();
 				system(input.c_str());
+			}
+			else if(cstr::cstrcmp(command[0], lastStr))
+			{
+				if(lastCommand != "") {
+					cout << lastCommand << endl;
+					system(lastCommand.c_str());
+				} else {
+					cout << "No previous working command!" << endl;
+				}
 			}
 			else
 			{
 				if(commandExists(command[0]))
 				{
 					string builtCommand = "./CCLI/bin/" + command[0] + " " + buildParamString(command);
+					lastCommand = builtCommand;
 					system(builtCommand.c_str());
 				}
 				else

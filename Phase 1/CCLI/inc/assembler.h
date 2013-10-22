@@ -35,6 +35,8 @@ private:
 	string parsingFilename;
 	ifstream *parsingFile;
 
+	int startAddress;
+
 	string start;
 	string end;
 	string word;

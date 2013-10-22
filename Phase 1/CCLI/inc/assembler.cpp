@@ -14,6 +14,9 @@
  
 #include "assembler.h"
 
+
+static const int MAX_PROG_SIZE = 32768;
+
 /**
  * Opcode that takes a number of args and the hex code associated with the mnemonic.
  */
@@ -113,7 +116,7 @@ void assembler::validateTokenizedCommand(vector<string> &command)
  */
 int assembler::getNumberOfItems(string &line) 
 {
-	return isalpha(line[0]) ? 3 : 2; 
+	return isalnum(line[0]) ? 3 : 2; 
 }
 
 /**
@@ -153,7 +156,7 @@ void assembler::passOne()
 	string intermediateLine;
 	string listingLine;
 	vector<string> tokeLine;
-	int locctr = -99;
+	int locctr = startAddress = -99;
 
 	ofstream listingFile((parsingFilename + ".listing").c_str());
 	ofstream objectFile((parsingFilename + ".object").c_str());
@@ -202,32 +205,39 @@ string assembler::createIntermediateLine(int &loc, vector<string> &line, string 
 	int update = 0;
 	int size = line.size();
 	string opcode = line[(size < 3 ? 0 : 1)];
+	bool opcodeExists = checkOpcodeMapForKey(opcode);
 
 	if(!cstr::cstrcmp(opcode, start)) {
 		switch(size)
 		{
 			case 1: case 2:
 			{
-				update = 3;
+				if(cstr::cstrcmp(opcode, end)) {
+					if(loc - startAddress > MAX_PROG_SIZE) {
+						warnings << hex << errors["programTooLong"] << " ";
+					}
+				} else {
+					update = 3;
+				}
 				break;
 			}
 			case 3:
 			{
 				if(loc == -99) {
-					warnings << errors["illegalStart"] << " "; 
+					warnings << hex << errors["illegalStart"] << " "; 
 				}
 
 				if(!checkSymbolMapForKey(line[0])) {
 					symbols[line[0]] = loc; 
 
 					if(!isalpha(line[0][0])) {
-						warnings << errors["illegalLabel"] << " ";
+						warnings << hex << errors["illegalLabel"] << " ";
 					}
 				} else {
-					warnings << errors["dupLabel"] << " "; 
+					warnings << hex << errors["duplicateLabel"] << " "; 
 				}
 
-				if(checkOpcodeMapForKey(opcode)) {
+				if(opcodeExists) {
 					update = 3; 
 				} else {
 					if(cstr::cstrcmp(opcode, word)) {
@@ -238,7 +248,7 @@ string assembler::createIntermediateLine(int &loc, vector<string> &line, string 
 						if(num != INT_MIN) {
 							update = num;
 						} else {
-							warnings << errors["illegalOperand"] << " ";
+							warnings << hex << errors["illegalOperand"] << " ";
 						}
 					} else if(cstr::cstrcmp(opcode, resw)) {
 						int num = cstr::convertStringToIntWithBase(line[2], 10);
@@ -246,7 +256,7 @@ string assembler::createIntermediateLine(int &loc, vector<string> &line, string 
 						if(num != INT_MIN) {
 							update = 3 * num; 
 						} else { 
-							warnings << errors["illegalOperand"] << " "; 
+							warnings << hex << errors["illegalOperand"] << " "; 
 						}
 					} else if(cstr::cstrcmp(opcode, byte)) {
 						int num = astr::numberBytesFromLiteral(line[2]);
@@ -259,20 +269,21 @@ string assembler::createIntermediateLine(int &loc, vector<string> &line, string 
 							if(type == 'x'){
 								if((num + 1) % 2 != 0 || num >= 32) {
 									cout << endl << num << endl;
-									warnings << errors["illegalOperand"] << " ";
+									warnings << hex << errors["illegalOperand"] << " ";
 								}
 							} else if(type == 'c') {
 								if(num > 30) {
-									warnings << errors["illegalOperand"] << " ";
+									warnings << hex << errors["illegalOperand"] << " ";
 								}
 							}
 						} else {
 							update = 3;
-							warnings << errors["illegalOperand"] << " ";
+							warnings << hex << errors["illegalOperand"] << " ";
 						}
 					} else {
+						cout << "EHAHSDFHASHDFAHSDFH";
 						update = 3;
-						warnings << errors["illegalOperation"] << " ";
+						warnings << hex << errors["illegalOperation"] << " ";
 					}
 				}
 
@@ -282,20 +293,24 @@ string assembler::createIntermediateLine(int &loc, vector<string> &line, string 
 		}
 	} else {
 		if(loc != -99) {
-			warnings << errors["redefinedStart"] << " "; 
+			warnings << hex << errors["redefinedStart"] << " "; 
 		}
 
-		loc = cstr::convertStringToIntWithBase(line[2], 16);
+		loc = startAddress = cstr::convertStringToIntWithBase(line[2], 16);
 		if(loc == INT_MIN) {
-			warnings << errors["illegalOperand"] << " "; 
+			warnings << hex << errors["illegalOperand"] << " "; 
 		}
 
 		symbols[line[0]] = loc;
 	}
 	
-	stream << setw(18) << astr::buildString(line) << "\t" << setw(4) << hex << loc << "\t" << warnings.str() << endl;
-	
-	cout << warnings.str();
+	stream << setw(18) << astr::buildString(line) << "\t";
+	if(opcodeExists) {
+		stream << "0x" << setw(2) << setfill('0') << hex << opcodes[opcode].hexCode << "\t";
+	} else {
+		stream << "    \t";
+	}
+	stream << setw(4) << hex << loc << "\t" << warnings.str() << endl;
 
 	loc += update;
 	

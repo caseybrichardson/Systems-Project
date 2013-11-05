@@ -191,6 +191,19 @@ void assembler::passTwo()
 }
 
 /**
+ * Creates an error for use in the intermediate output.
+ * @param key The key of the error to write.
+ */
+string assembler::createIntermediateError(string key)
+{
+	ostringstream errorLine;
+
+	errorLine << "0x" << setw(6) << hex << errors[key] << " ";
+
+	return errorLine.str();
+}
+
+/**
  * Prints out the symbol file.
  */
 void assembler::printSymbols()
@@ -229,7 +242,7 @@ string assembler::createIntermediateLine(int &loc, vector<string> &line, string 
 			{
 				if(cstr::cstrcmp(opcode, end)) {
 					if(loc - startAddress > MAX_PROG_SIZE) {
-						warnings << "0x" << setw(6) << hex << errors["programTooLong"] << " ";
+						warnings << createIntermediateError("programTooLong");
 					}
 				} else {
 					update = 3;
@@ -239,21 +252,21 @@ string assembler::createIntermediateLine(int &loc, vector<string> &line, string 
 			case 3:
 			{
 				if(loc == -99) {
-					warnings << "0x" << setw(6) << hex << errors["illegalStart"] << " "; 
+					warnings << createIntermediateError("illegalStart"); 
 				}
 
 				if(!checkSymbolMapForKey(line[0])) {
 					symbols[line[0]] = loc; 
 
 					if(symbols.size() > 500) {
-						warnings << "0x" << setw(6) << hex << errors["tooManySymbols"] << " ";
+						warnings << createIntermediateError("tooManySymbols");
 					}
 
 					if(!isalpha(line[0][0])) {
-						warnings << "0x" << setw(6) << hex << errors["illegalLabel"] << " ";
+						warnings << createIntermediateError("illegalLabel");
 					}
 				} else {
-					warnings << "0x" << setw(6) << hex << errors["duplicateLabel"] << " "; 
+					warnings << createIntermediateError("duplicateLabel"); 
 				}
 
 				if(opcodeExists) {
@@ -267,7 +280,7 @@ string assembler::createIntermediateLine(int &loc, vector<string> &line, string 
 						if(num != INT_MIN) {
 							update = num;
 						} else {
-							warnings << "0x" << setw(6) << hex << errors["illegalOperand"] << " ";
+							warnings << createIntermediateError("illegalOperand");
 						}
 					} else if(cstr::cstrcmp(opcode, resw)) {
 						int num = cstr::convertStringToIntWithBase(line[2], 10);
@@ -275,7 +288,7 @@ string assembler::createIntermediateLine(int &loc, vector<string> &line, string 
 						if(num != INT_MIN) {
 							update = 3 * num; 
 						} else { 
-							warnings << "0x" << setw(6) << hex << errors["illegalOperand"] << " "; 
+							warnings << createIntermediateError("illegalOperand"); 
 						}
 					} else if(cstr::cstrcmp(opcode, byte)) {
 						int num = astr::numberCharsFromLiteral(line[2]);
@@ -288,22 +301,22 @@ string assembler::createIntermediateLine(int &loc, vector<string> &line, string 
 							if(type == 'x'){
 								update /= 2;
 								if(num % 2 != 0 || num >= 32) {
-									warnings << "0x" << setw(6) << hex << errors["illegalOperand"] << " ";
+									warnings << createIntermediateError("illegalOperand");
 								}
 							} else if(type == 'c') {
 								if(num > 30) {
-									warnings << "0x" << setw(6) << hex << errors["illegalOperand"] << " ";
+									warnings << createIntermediateError("illegalOperand");
 								}
 							} else {
-								warnings << "0x" << setw(6) << hex << errors["illegalOperand"] << " ";
+								warnings << createIntermediateError("illegalOperand");
 							}
 						} else {
 							update = 3;
-							warnings << "0x" << setw(6) << hex << errors["illegalOperand"] << " ";
+							warnings << createIntermediateError("illegalOperand");
 						}
 					} else {
 						update = 3;
-						warnings << "0x" << setw(6) << hex << errors["illegalOperation"] << " ";
+						warnings << createIntermediateError("illegalOperation");
 					}
 				}
 
@@ -313,12 +326,12 @@ string assembler::createIntermediateLine(int &loc, vector<string> &line, string 
 		}
 	} else {
 		if(loc != -99) {
-			warnings << "0x" << setw(6) << hex << errors["redefinedStart"] << " "; 
+			warnings << createIntermediateError("redefinedStart"); 
 		}
 
 		loc = startAddress = cstr::convertStringToIntWithBase(line[2], 16);
 		if(loc == INT_MIN) {
-			warnings << "0x" << setw(6) << hex << errors["illegalOperand"] << " "; 
+			warnings << createIntermediateError("illegalOperand"); 
 		}
 
 		symbols[line[0]] = loc;
@@ -364,9 +377,7 @@ assembler::assembler(string filename)
 		byte 	= "byte";
 
 		passOne();
-
 		printSymbols();
-
 		passTwo();
 	}
 }

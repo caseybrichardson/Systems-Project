@@ -16,6 +16,9 @@
 #include <cstdlib>
 #include <vector>
 
+#include <pwd.h>
+#include <unistd.h>
+
 #include "cstr.h"
 #include "utils.h"
 
@@ -29,6 +32,12 @@ int main(int argc, char **argv)
 	string buildStr("make");
 	string lastStr("!!");
 	string exitStr("exit");
+	char name[1024];
+	gethostname(name, 1024);
+	string hostname(name);
+
+	struct passwd *passwd;
+	passwd = getpwuid(getuid());
 
 	system("clear");
 
@@ -38,7 +47,7 @@ int main(int argc, char **argv)
 	cout << "   Copyright©  Casey Richardson 2013  " << endl << endl;
 	while(true)
 	{
-		cout << "> ";
+		cout << passwd->pw_name << "@" << hostname << "$ ";
 		getline(cin, input);
 
 		vector<string> command = cstr::tokenizeCommand(input);
@@ -64,10 +73,13 @@ int main(int argc, char **argv)
 			}
 			else if(cstr::cstrcmp(command[0], lastStr))
 			{
-				if(lastCommand != "") {
+				if(lastCommand != "") 
+				{
 					cout << lastCommand << endl;
 					system(lastCommand.c_str());
-				} else {
+				} 
+				else 
+				{
 					cout << "No previous working command!" << endl;
 				}
 			}

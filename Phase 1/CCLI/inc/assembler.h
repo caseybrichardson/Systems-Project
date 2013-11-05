@@ -60,6 +60,8 @@ private:
 	void passOne();
 	void passTwo();
 
+	string createIntermediateError(string key);
+
 	void printSymbols();
 
 	string createIntermediateLine(int &loc, vector<string> &line, string &origLine);

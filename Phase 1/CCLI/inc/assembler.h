@@ -65,6 +65,8 @@ private:
 	void printSymbols();
 
 	string createIntermediateLine(int &loc, vector<string> &line, string &origLine);
+	string createObjectLine(vector<string> &line);
+	string createListingLine(vector<string> &line, string &origLine);
 
 	void addSymbolToMap(string &key, int location);
 

@@ -21,6 +21,7 @@
 
 #include "cstr.h"
 #include "utils.h"
+#include "outputGlobals.h"
 
 using namespace std;
 
@@ -41,13 +42,13 @@ int main(int argc, char **argv)
 
 	system("clear");
 
-	cout << "<======= + + + + CCLI + + + + =======>" << endl << endl;
-	cout << "    Casey's Command Line Interface    " << endl << endl;
-	cout << "<======= + + + + ==== + + + + =======>" << endl;
-	cout << "   Copyright©  Casey Richardson 2013  " << endl << endl;
+	cout << WHITE << "<======= + + + + CCLI + + + + =======>" << endl << endl;
+	cout << WHITE << "    Casey's Command Line Interface    " << endl << endl;
+	cout << WHITE <<  "<======= + + + + ==== + + + + =======>" << endl;
+	cout << WHITE <<  "   Copyright©  Casey Richardson 2013  " << RESET << endl << endl;
 	while(true)
 	{
-		cout << passwd->pw_name << "@" << hostname << "$ ";
+		cout << BLUE << passwd->pw_name << WHITE << "@" << BLUE << hostname << "$ " << RESET;
 		getline(cin, input);
 
 		vector<string> command = cstr::tokenizeCommand(input);

@@ -158,8 +158,6 @@ void assembler::passOne()
 	vector<string> tokeLine;
 	int locctr = startAddress = -99;
 
-	ofstream listingFile((parsingFilename + ".listing").c_str());
-	ofstream objectFile((parsingFilename + ".object").c_str());
 	ofstream intermediateFile((parsingFilename + ".output").c_str());
 
 	while(getline(*(parsingFile), line))
@@ -173,7 +171,7 @@ void assembler::passOne()
 				validateTokenizedCommand(tokeLine);
 
 				intermediateLine = createIntermediateLine(locctr, tokeLine, line);
-				cout << intermediateLine;
+				//cout << intermediateLine;
 				intermediateFile << intermediateLine;
 			}
 		}
@@ -187,7 +185,26 @@ void assembler::passOne()
  */
 void assembler::passTwo()
 {
-	cout << "Pass two is not yet implemented!" << endl;
+	string line;
+	string listingLine;
+	vector<string> tokeLine;
+
+	ofstream listingFile((parsingFilename + ".listing").c_str());
+
+	while(getline(*(parsingFile), line))
+	{
+		tokeLine = astr::tokenizeStatement(line, 99);
+
+		if(tokeLine.size() > 0)
+		{
+			validateTokenizedCommand(tokeLine);
+
+			intermediateLine = createIntermediateLine(locctr, tokeLine, line);
+			intermediateFile << intermediateLine;
+		}
+	}
+
+	cout << "Pass two completed!" << endl;
 }
 
 /**
@@ -233,6 +250,7 @@ string assembler::createIntermediateLine(int &loc, vector<string> &line, string 
 	int update = 0;
 	int size = line.size();
 	string opcode = line[(size < 3 ? 0 : 1)];
+	string operand;
 	bool opcodeExists = checkOpcodeMapForKey(opcode);
 
 	if(!cstr::cstrcmp(opcode, start)) {
@@ -292,6 +310,7 @@ string assembler::createIntermediateLine(int &loc, vector<string> &line, string 
 						}
 					} else if(cstr::cstrcmp(opcode, byte)) {
 						int num = astr::numberCharsFromLiteral(line[2]);
+						operand = line[2];
 
 						if(num != INT_MIN) {
 							char type = line[2][0];
@@ -338,14 +357,17 @@ string assembler::createIntermediateLine(int &loc, vector<string> &line, string 
 	}
 	
 	stream << setw(4) << hex << loc << "\t" << setw(18) << astr::buildString(line) << "\t";
-	if(opcodeExists) {
+	if(opcodeExists) 
+	{
 		stream << "0x" << setw(2) << setfill('0') << hex << opcodes[opcode].hexCode << "\t";
-	} else {
+	} 
+	else 
+	{
 		stream << "    \t";
 	}
 
 	string warn = warnings.str();
-	stream << (warn.length() != 0 ? warn : "0") << "\t#" << endl;
+	stream << (warn.length() != 0 ? warn : "0") << "\t" << endl;
 
 	loc += update;
 	

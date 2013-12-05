@@ -171,13 +171,10 @@ void assembler::passOne()
 				validateTokenizedCommand(tokeLine);
 
 				intermediateLine = createIntermediateLine(locctr, tokeLine, line);
-				//cout << intermediateLine;
 				intermediateFile << intermediateLine;
 			}
 		}
 	}
-
-	cout << "Pass one completed!" << endl;
 }
 
 /**
@@ -186,10 +183,15 @@ void assembler::passOne()
 void assembler::passTwo()
 {
 	string line;
+	string objectLine;
 	string listingLine;
 	vector<string> tokeLine;
 
+	ifstream intermediateFile((parsingFilename + ".output").c_str());
+	ofstream objectFile((parsingFilename + ".obj").c_str());
 	ofstream listingFile((parsingFilename + ".listing").c_str());
+
+	readSymbolFile((parsingFilename + ".symbols"));
 
 	while(getline(*(parsingFile), line))
 	{
@@ -197,14 +199,27 @@ void assembler::passTwo()
 
 		if(tokeLine.size() > 0)
 		{
-			validateTokenizedCommand(tokeLine);
-
-			intermediateLine = createIntermediateLine(locctr, tokeLine, line);
-			intermediateFile << intermediateLine;
+			//objectLine = createObjectLine(locctr, tokeLine, line);
+			//objectFile << objectLine;
 		}
 	}
+}
 
-	cout << "Pass two completed!" << endl;
+/**
+ * Cleans up left over stuff so we have a clean slate in pass two.
+ */
+void assembler::cleanUpPassOne()
+{
+	symbols.clear();
+}
+
+/**
+ * Cleans up left over stuff so our program cleans up nicely.
+ */
+void assembler::cleanUpPassTwo()
+{
+	opcodes.clear();
+	symbols.clear();
 }
 
 /**
@@ -374,6 +389,42 @@ string assembler::createIntermediateLine(int &loc, vector<string> &line, string 
 	return stream.str();
 }
 
+string assembler::createObjectLine(vector<string> &line)
+{
+
+}
+
+string assembler::createListingLine(vector<string> &line, string &origLine)
+{
+	
+}
+
+/**
+ * Read the symbol file back in.
+ */	
+bool assembler::readSymbolFile(string &filename)
+{
+	string line;
+	ifstream symbolsFile(filename.c_str());
+
+	if(!symbolsFile)
+	{
+		cerr << RED << "Could not find symbol file named: \"" << filename << "\". Please ensure that it exists and is in the current directory." << RESET << endl;
+	}
+	else
+	{
+		while(getline(symbolsFile, line))
+		{
+			tokeLine = astr::tokenizeStatement(line, 99);
+
+			if(tokeLine.size() > 0)
+			{
+				symbols[tokeLine[0]] = cstr::convertStringToIntWithBase(tokeLine[1], 16);
+			}
+		}
+	}
+}
+
 /**
  * A parameterized constructor that takes a filename to the file we will assemble.
  */
@@ -387,7 +438,7 @@ assembler::assembler(string filename)
 
 	if(!*(parsingFile))
 	{
-		cerr << "The file \"" << filename << "\" could not be opened. Please ensure that it exists and is in the current directory." << endl;
+		cerr << RED << "The file \"" << filename << "\" could not be opened. Please ensure that it exists and is in the current directory." << RESET << endl;
 	}
 	else
 	{
@@ -400,7 +451,10 @@ assembler::assembler(string filename)
 
 		passOne();
 		printSymbols();
+		cleanUpPassOne();
+
 		passTwo();
+		cleanUpPassTwo();
 	}
 }
 

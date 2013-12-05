@@ -24,6 +24,7 @@
 
 #include "cstr.h"
 #include "assemblerStr.h"
+#include "outputGlobals.h"
 
 using namespace std;
 
@@ -60,6 +61,9 @@ private:
 	void passOne();
 	void passTwo();
 
+	void cleanUpPassOne();
+	void cleanUpPassTwo();
+
 	string createIntermediateError(string key);
 
 	void printSymbols();
@@ -68,7 +72,7 @@ private:
 	string createObjectLine(vector<string> &line);
 	string createListingLine(vector<string> &line, string &origLine);
 
-	void addSymbolToMap(string &key, int location);
+	void readSymbolFile(string &filename);
 
 public:
 	assembler(string filename);

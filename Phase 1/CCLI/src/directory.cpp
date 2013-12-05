@@ -18,7 +18,7 @@ using namespace std;
 
 int main(int argc, char **argv)
 {
-	system("ls -l");
+	system("ls -l --color");
 
 	return 0;
 }

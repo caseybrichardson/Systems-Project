@@ -29,7 +29,7 @@ using namespace std;
  */
 bool isCommand(string &command)
 {
-	string commands[] = {"load", "execute", "debug", "dump", "help", "assemble", "directory", "clear", "make", "!!", "exit"};
+	string commands[] = {"load", "execute", "debug", "dump", "help", "assemble", "directory", "clear", "make", "exit", "cd"};
 
 	for(int i = 0; i < 11; i++)
 	{

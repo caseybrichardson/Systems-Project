@@ -156,6 +156,32 @@ int cstr::cstrlen(char *input)
 }
 
 /**
+ * Takes a vector of strings and concantenates the indexes from the start to the end range.
+ * @param  strings The vector of strings we will be using as our source.
+ * @param  start   The start index of the strings we will concantenate.
+ * @param  end     The end index of the strings we will concantenate.
+ * @return         The string that was made by concantenating the strings in the vector.
+ */
+string cstr::stringFromStringsWithRange(vector<string> strings, int start, int end)
+{
+	if(end > strings.size())
+	{
+		return "";
+	}
+	else
+	{
+		string concantenation;
+
+		for(int i = start; i < end; i++)
+		{
+			concantenation += strings[i] + (start != end - 1 ? " " : "");
+		}
+
+		return concantenation;
+	}
+}
+
+/**
  * Takes a string and capitalizes all alphabetic characters within it.
  * @param  str - The string to transform.
  * @return The capitalized string.

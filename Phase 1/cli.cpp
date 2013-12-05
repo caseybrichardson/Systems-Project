@@ -28,12 +28,12 @@ using namespace std;
 int main(int argc, char **argv)
 {
 	string input;
-	string lastCommand;
 	string clearStr("clear");
 	string buildStr("make");
-	string lastStr("!!");
+	string changeStr("cd");
 	string exitStr("exit");
 	char name[1024];
+	char cwd[1024];
 	gethostname(name, 1024);
 	string hostname(name);
 
@@ -44,11 +44,13 @@ int main(int argc, char **argv)
 
 	cout << WHITE << "<======= + + + + CCLI + + + + =======>" << endl << endl;
 	cout << WHITE << "    Casey's Command Line Interface    " << endl << endl;
-	cout << WHITE <<  "<======= + + + + ==== + + + + =======>" << endl;
-	cout << WHITE <<  "   Copyright©  Casey Richardson 2013  " << RESET << endl << endl;
+	cout << WHITE << "<======= + + + + ==== + + + + =======>" << endl;
+	cout << WHITE << "   Copyright©  Casey Richardson 2013  " << RESET << endl << endl;
 	while(true)
 	{
-		cout << BLUE << passwd->pw_name << WHITE << "@" << BLUE << hostname << "$ " << RESET;
+		getcwd(cwd, sizeof(cwd));
+		string wd(cwd);
+		cout << "[" << passwd->pw_name << "@" <<  hostname << " " << CYAN << wd << RESET << "]$ " << RESET;
 		getline(cin, input);
 
 		vector<string> command = cstr::tokenizeCommand(input);
@@ -64,32 +66,25 @@ int main(int argc, char **argv)
 			}
 			else if(cstr::cstrcmp(command[0], clearStr))
 			{
-				lastCommand = clearStr;
 				system("clear");
 			}
 			else if(cstr::cstrcmp(command[0], buildStr))
 			{
-				lastCommand = input.c_str();
 				system(input.c_str());
 			}
-			else if(cstr::cstrcmp(command[0], lastStr))
+			/* TODO: Implement directory changing
+			else if(cstr::cstrcmp(command[0], changeStr))
 			{
-				if(lastCommand != "") 
-				{
-					cout << lastCommand << endl;
-					system(lastCommand.c_str());
-				} 
-				else 
-				{
-					cout << "No previous working command!" << endl;
-				}
+				string test = cstr::stringFromStringsWithRange(command, 1, command.size()).c_str();
+				cout << test << endl;
+				chdir(test.c_str());
 			}
+			*/
 			else
 			{
 				if(commandExists(command[0]))
 				{
 					string builtCommand = "./CCLI/bin/" + command[0] + " " + buildParamString(command);
-					lastCommand = builtCommand;
 					system(builtCommand.c_str());
 				}
 				else

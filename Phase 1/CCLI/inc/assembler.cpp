@@ -14,7 +14,6 @@
  
 #include "assembler.h"
 
-
 static const int MAX_PROG_SIZE = 32768;
 
 /**
@@ -30,6 +29,73 @@ struct opcode
 	{
 		numArgs = nArgs;
 		hexCode = hCode;
+	}
+};
+
+struct intermediateLine
+{
+	int address;
+	int sourceLength;
+	int numberErrors;
+
+	recordType type;
+
+	string label;
+	string opcode;
+	string operand;
+	string objectLine;
+
+	vector<string> errors;
+
+	int errorCode;
+
+	intermediateLine(vector<string> line)
+	{
+		address = cstr::convertStringToIntWithBase(line[0], 16);
+		sourceLength = cstr::convertStringToIntWithBase(line[1], 10);
+		numberErrors = cstr::convertStringToIntWithBase(line[2 + sourceLength], 10);
+
+		switch(sourceLength)
+		{
+			case 1:
+				opcode = line[2];
+				break;
+			case 2:
+				opcode = line[2];
+				operand = line[3];
+				break;
+			case 3:
+				label = line[2];
+				opcode = line[3];
+				operand = line[4];
+				break;
+			default:
+				cerr << "Error: malformed line at: " << address << endl;
+		}
+
+		if(numberErrors > 0)
+		{
+			for(int i = 3 + sourceLength; i < line.size(); i++)
+			{
+				errors.push_back(line[i]);
+			}
+		}
+
+		string startOp = "start";
+		string endOp = "end";
+
+		if(cstr::cstrcmp(opcode, startOp))
+		{
+			type = headerType;
+		}
+		else if(cstr::cstrcmp(opcode, endOp))
+		{
+			type = endType;
+		}
+		else
+		{
+			type = textType;
+		}
 	}
 };
 
@@ -111,8 +177,8 @@ void assembler::validateTokenizedCommand(vector<string> &command)
 
 /**
  * Returns the potential number of items in the passed in line.
- * @param  line - The line that we are checking.
- * @return The potential number of items in the line.
+ * @param  line The line that we are checking.
+ * @return 		The potential number of items in the line.
  */
 int assembler::getNumberOfItems(string &line) 
 {
@@ -121,8 +187,8 @@ int assembler::getNumberOfItems(string &line)
 
 /**
  * Returns true if the opcode map contains the given key.
- * @param  key - The key we will look for in the opcode map.
- * @return A bool representing whether or not the key is in the map.
+ * @param  key  The key we will look for in the opcode map.
+ * @return 		A bool representing whether or not the key is in the map.
  */
 bool assembler::checkOpcodeMapForKey(string &key) 
 {
@@ -185,22 +251,62 @@ void assembler::passTwo()
 	string line;
 	string objectLine;
 	string listingLine;
+	ostringstream currentRecordText;
+	int currentRecordStartLoc;
 	vector<string> tokeLine;
+	recordType lastType = noneType;
+	int lastLoc;
 
 	ifstream intermediateFile((parsingFilename + ".output").c_str());
-	ofstream objectFile((parsingFilename + ".obj").c_str());
+	ofstream objectFile((parsingFilename + ".object").c_str());
 	ofstream listingFile((parsingFilename + ".listing").c_str());
 
-	readSymbolFile((parsingFilename + ".symbols"));
+	string symFile((parsingFilename + ".symbols").c_str());
+	readSymbolFile(symFile);
 
-	while(getline(*(parsingFile), line))
+	while(getline(intermediateFile, line))
 	{
 		tokeLine = astr::tokenizeStatement(line, 99);
 
 		if(tokeLine.size() > 0)
 		{
-			//objectLine = createObjectLine(locctr, tokeLine, line);
-			//objectFile << objectLine;
+			intermediateLine iLine(tokeLine);
+
+			if(iLine.type != lastType || currentRecordText.str().length() + 11 >= 70)
+			{
+				switch(lastType)
+				{
+					case headerType:
+						objectFile << "H" << currentRecordText.str() << endl;
+						break;
+					case textType:
+						objectFile << "T" << hex << setw(6) << setfill('0') << currentRecordStartLoc << setw(2) << (lastLoc - currentRecordStartLoc) <<  currentRecordText.str() << endl;
+						break;
+					case noneType:
+						break;
+				}
+
+				currentRecordText.clear();
+				currentRecordText.str("");
+			}
+
+			lastLoc = iLine.address;
+			objectLine = createObjectCode(iLine);
+			listingFile << line << "\t" << objectLine << endl;
+
+			if(currentRecordText.str().length() == 0)
+			{
+				currentRecordStartLoc = iLine.address;
+			}
+
+			currentRecordText << objectLine;
+
+			if(iLine.type == endType)
+			{
+				objectFile << "E" << objectLine << endl;
+			}
+
+			lastType = iLine.type;
 		}
 	}
 }
@@ -264,6 +370,7 @@ string assembler::createIntermediateLine(int &loc, vector<string> &line, string 
 
 	int update = 0;
 	int size = line.size();
+	int numWarnings = 0;
 	string opcode = line[(size < 3 ? 0 : 1)];
 	string operand;
 	bool opcodeExists = checkOpcodeMapForKey(opcode);
@@ -274,7 +381,9 @@ string assembler::createIntermediateLine(int &loc, vector<string> &line, string 
 			case 1: case 2:
 			{
 				if(cstr::cstrcmp(opcode, end)) {
+					endAddress = loc;
 					if(loc - startAddress > MAX_PROG_SIZE) {
+						numWarnings++;
 						warnings << createIntermediateError("programTooLong");
 					}
 				} else {
@@ -285,6 +394,7 @@ string assembler::createIntermediateLine(int &loc, vector<string> &line, string 
 			case 3:
 			{
 				if(loc == -99) {
+					numWarnings++;
 					warnings << createIntermediateError("illegalStart"); 
 				}
 
@@ -292,13 +402,16 @@ string assembler::createIntermediateLine(int &loc, vector<string> &line, string 
 					symbols[line[0]] = loc; 
 
 					if(symbols.size() > 500) {
+						numWarnings++;
 						warnings << createIntermediateError("tooManySymbols");
 					}
 
 					if(!isalpha(line[0][0])) {
+						numWarnings++;
 						warnings << createIntermediateError("illegalLabel");
 					}
 				} else {
+					numWarnings++;
 					warnings << createIntermediateError("duplicateLabel"); 
 				}
 
@@ -313,6 +426,7 @@ string assembler::createIntermediateLine(int &loc, vector<string> &line, string 
 						if(num != INT_MIN) {
 							update = num;
 						} else {
+							numWarnings++;
 							warnings << createIntermediateError("illegalOperand");
 						}
 					} else if(cstr::cstrcmp(opcode, resw)) {
@@ -321,6 +435,7 @@ string assembler::createIntermediateLine(int &loc, vector<string> &line, string 
 						if(num != INT_MIN) {
 							update = 3 * num; 
 						} else { 
+							numWarnings++;
 							warnings << createIntermediateError("illegalOperand"); 
 						}
 					} else if(cstr::cstrcmp(opcode, byte)) {
@@ -335,43 +450,49 @@ string assembler::createIntermediateLine(int &loc, vector<string> &line, string 
 							if(type == 'x'){
 								update /= 2;
 								if(num % 2 != 0 || num >= 32) {
+									numWarnings++;
 									warnings << createIntermediateError("illegalOperand");
 								}
 							} else if(type == 'c') {
 								if(num > 30) {
+									numWarnings++;
 									warnings << createIntermediateError("illegalOperand");
 								}
 							} else {
+								numWarnings++;
 								warnings << createIntermediateError("illegalOperand");
 							}
 						} else {
 							update = 3;
+							numWarnings++;
 							warnings << createIntermediateError("illegalOperand");
 						}
 					} else {
 						update = 3;
+						numWarnings++;
 						warnings << createIntermediateError("illegalOperation");
 					}
 				}
-
 
 				break;
 			}
 		}
 	} else {
 		if(loc != -99) {
+			numWarnings++;
 			warnings << createIntermediateError("redefinedStart"); 
 		}
 
 		loc = startAddress = cstr::convertStringToIntWithBase(line[2], 16);
 		if(loc == INT_MIN) {
+			numWarnings++;
 			warnings << createIntermediateError("illegalOperand"); 
 		}
 
 		symbols[line[0]] = loc;
 	}
 	
-	stream << setw(4) << hex << loc << "\t" << setw(18) << astr::buildString(line) << "\t";
+	stream << setw(4) << hex << loc << "\t" << setw(5) << line.size() << "\t" << setw(18) << astr::buildString(line) << "\t" << setw(5) << numWarnings << "\t";
 	if(opcodeExists) 
 	{
 		stream << "0x" << setw(2) << setfill('0') << hex << opcodes[opcode].hexCode << "\t";
@@ -382,21 +503,105 @@ string assembler::createIntermediateLine(int &loc, vector<string> &line, string 
 	}
 
 	string warn = warnings.str();
-	stream << (warn.length() != 0 ? warn : "0") << "\t" << endl;
+	stream << (warn.length() != 0 ? warn : "") << endl;
 
 	loc += update;
 	
 	return stream.str();
 }
 
-string assembler::createObjectLine(vector<string> &line)
+string assembler::createObjectCode(intermediateLine &line)
 {
+	ostringstream output;
 
+	switch(line.type)
+	{
+		case headerType:
+			output << hex << line.label << " " << setw(6) << setfill('0') << startAddress << setw(6) << (endAddress - startAddress);
+			break;
+		case textType:
+			if(checkOpcodeMapForKey(line.opcode))
+			{
+				if(opcodes[line.opcode].numArgs > 0)
+				{
+					output << hex << setw(2) << setfill('0') << opcodes[line.opcode].hexCode << symbols[line.operand];
+				}
+				else
+				{
+					output << hex << setw(2) << setfill('0') << opcodes[line.opcode].hexCode << "0000";
+				}
+			}
+			else
+			{
+				string op;
+
+				if(cstr::cstrcmp(line.opcode, word)) 
+				{
+					output << hex << setw(2) << setfill('0') << symbols[line.operand];
+				} 
+				else if(cstr::cstrcmp(line.opcode, resb)) 
+				{
+					int operandVal = cstr::convertStringToIntWithBase(line.operand, 10);
+					cout << "B" << operandVal << endl;
+					ostringstream space;
+
+					for(int i = 0; i < operandVal; i++)
+					{
+						space << "00";
+					}
+
+					output << hex << space.str();
+				} 
+				else if(cstr::cstrcmp(line.opcode, resw)) 
+				{
+					int operandVal = cstr::convertStringToIntWithBase(line.operand, 10);
+					cout << operandVal << endl;
+					ostringstream space;
+
+					for(int i = 0; i < operandVal; i++)
+					{
+						space << "000000";
+					}
+
+					output << hex << space.str();
+				} 
+				else if(cstr::cstrcmp(line.opcode, byte)) 
+				{
+					op = astr::stringFromLiteral(line.operand);
+
+					if(line.operand[0] == 'x')
+					{
+						output << hex << setw(2) << setfill('0') << op;
+					}
+					else if(line.operand[0] == 'c')
+					{
+						ostringstream literal;
+
+						for(int i = 0; i < op.length(); i++)
+						{
+							literal << hex << (int)op[i];
+						}
+
+						output << hex << setw(2) << setfill('0') << literal.str();
+					}
+				} 
+				else 
+				{
+					return "";
+				}
+			}
+			break;
+		case endType:
+			output << hex << setw(6) << setfill('0') << startAddress;
+			break;
+	}
+
+	return output.str();
 }
 
 string assembler::createListingLine(vector<string> &line, string &origLine)
 {
-	
+	return "";
 }
 
 /**
@@ -410,18 +615,21 @@ bool assembler::readSymbolFile(string &filename)
 	if(!symbolsFile)
 	{
 		cerr << RED << "Could not find symbol file named: \"" << filename << "\". Please ensure that it exists and is in the current directory." << RESET << endl;
+		return false;
 	}
 	else
 	{
 		while(getline(symbolsFile, line))
 		{
-			tokeLine = astr::tokenizeStatement(line, 99);
+			vector<string> tokeLine = astr::tokenizeStatement(line, 99);
 
 			if(tokeLine.size() > 0)
 			{
 				symbols[tokeLine[0]] = cstr::convertStringToIntWithBase(tokeLine[1], 16);
 			}
 		}
+
+		return true;
 	}
 }
 

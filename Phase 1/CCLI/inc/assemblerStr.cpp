@@ -32,6 +32,7 @@ vector<string> astr::tokenizeStatement(string &input, int numItems)
 	int endWord;
 	bool inWord = false;
 	bool inQuotes = false;
+	bool hasBeenInQuotes = false;
 
 	for(int i = 0; i <= input.length(); i++)
 	{
@@ -43,7 +44,10 @@ vector<string> astr::tokenizeStatement(string &input, int numItems)
 		}
 
 		if(currChar == '\'' || currChar == '\"')
+		{
+			hasBeenInQuotes = true;
 			inQuotes = !inQuotes;
+		}
 
         // Make sure that we're not currently inside a word.
 		if(!inWord)
@@ -63,7 +67,18 @@ vector<string> astr::tokenizeStatement(string &input, int numItems)
 				endWord = i;
 				inWord = false;
 
-				output.push_back(cstr::lower(cstr::csubstr(input, beginWord, endWord))) ;
+				if(hasBeenInQuotes)
+				{
+					string lit = cstr::csubstr(input, beginWord, endWord);
+					lit[0] = tolower(lit[0]);
+					output.push_back(lit);
+				}
+				else
+				{
+					output.push_back(cstr::lower(cstr::csubstr(input, beginWord, endWord)));
+				}
+				
+				hasBeenInQuotes = false;
 			}
 		}
 	}
@@ -109,5 +124,24 @@ int astr::numberCharsFromLiteral(string &input)
 	else
 	{
 		return INT_MIN;
+	}
+}
+
+string astr::stringFromLiteral(string &input)
+{
+	string literal;
+
+	if(input[1] == '\'' && input[input.length() - 1] == '\'' && (input[0] == 'c' || input[0] == 'x'))
+	{
+		for(int i = 2; isalnum(input[i]) || isspace(input[i]); i++)
+		{
+			literal += input[i];
+		}
+
+		return literal;
+	}
+	else
+	{
+		return "";
 	}
 }

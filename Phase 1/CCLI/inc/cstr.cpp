@@ -125,7 +125,7 @@ bool cstr::cstrcmp(string &input1, string &input2)
  * @param  input2 - The second char array to compare.
  * @return A bool representing whether or not the char arrays are equal.
  */
-bool cstr::cstrcmpchar(char *input1, char *input2)
+/*bool cstr::cstrcmpchar(char *input1, char *input2)
 {
 	if(cstrlen(input1) != cstrlen(input2))
 	{
@@ -153,7 +153,7 @@ int cstr::cstrlen(char *input)
 	}
 
 	return i;
-}
+}*/
 
 /**
  * Takes a vector of strings and concantenates the indexes from the start to the end range.

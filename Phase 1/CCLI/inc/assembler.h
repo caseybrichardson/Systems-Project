@@ -28,7 +28,16 @@
 
 using namespace std;
 
+enum recordType
+{
+	headerType,
+	textType,
+	endType,
+	noneType
+};
+
 struct opcode;
+struct intermediateLine;
 class assembler{
 private:
 	map<string, int> symbols;
@@ -38,6 +47,7 @@ private:
 	ifstream *parsingFile;
 
 	int startAddress;
+	int endAddress;
 
 	string start;
 	string end;
@@ -69,10 +79,10 @@ private:
 	void printSymbols();
 
 	string createIntermediateLine(int &loc, vector<string> &line, string &origLine);
-	string createObjectLine(vector<string> &line);
+	string createObjectCode(intermediateLine &line);
 	string createListingLine(vector<string> &line, string &origLine);
 
-	void readSymbolFile(string &filename);
+	bool readSymbolFile(string &filename);
 
 public:
 	assembler(string filename);

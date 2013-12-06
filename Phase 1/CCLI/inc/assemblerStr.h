@@ -31,6 +31,7 @@ public:
 	static vector<string> tokenizeStatement(string &input, int numItems);
 	static string buildString(const vector<string> &params);
 	static int numberCharsFromLiteral(string &input);
+	static string stringFromLiteral(string &input);
 };
 
 #endif

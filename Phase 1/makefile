@@ -1,13 +1,18 @@
 
 CC = g++
+C = gcc
+P = -c
 
-FILES = cli.cpp CCLI/inc/cstr.cpp
+FILES = cli.cpp CCLI/inc/cstr.cpp sicengine.o
 INCLUDES = -ICCLI/inc/
 INCLUDES2 = -I../inc/
 OUT_EXE = -o cli
 
 build: $(FILES)
 	$(CC) $(FILES) $(INCLUDES) $(OUT_EXE)
+
+withc:
+	 $(C) $(P) sicengine.c; $(CC) $(P) $(FILES) $(INCLUDES); g++ sicengine.o cli.o -o cli
 
 load:
 	$(CC) ./CCLI/src/load.cpp CCLI/inc/cstr.cpp $(INCLUDES) -o load; mv load ./CCLI/bin/

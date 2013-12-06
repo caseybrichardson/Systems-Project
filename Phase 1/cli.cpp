@@ -31,7 +31,14 @@ int main(int argc, char **argv)
 	string clearStr("clear");
 	string buildStr("make");
 	string changeStr("cd");
+	string catStr("cat");
 	string exitStr("exit");
+
+	// Way to make these commands completely break the layout of my project :P
+	string execStr("execute");
+	string loadStr("load");
+	string dumpStr("dump");
+
 	char name[1024];
 	char cwd[1024];
 	gethostname(name, 1024);
@@ -71,6 +78,22 @@ int main(int argc, char **argv)
 			else if(cstr::cstrcmp(command[0], buildStr))
 			{
 				system(input.c_str());
+			}
+			else if(cstr::cstrcmp(command[0], catStr))
+			{
+				system(input.c_str());
+			}
+			else if(cstr::cstrcmp(command[0], execStr))
+			{
+				cout << "Executing!" << endl;
+			}
+			else if(cstr::cstrcmp(command[0], loadStr))
+			{
+				cout << "Loading!" << endl;
+			}
+			else if(cstr::cstrcmp(command[0], dumpStr))
+			{
+				cout << "Dumping!" << endl;
 			}
 			/* TODO: Implement directory changing
 			else if(cstr::cstrcmp(command[0], changeStr))

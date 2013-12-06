@@ -28,7 +28,6 @@ public:
 	static vector<string> tokenizeCommand(string &input);
 	static string csubstr(string &input, int begin, int end);
 	static bool cstrcmp(string &input1, string &input2);
-	static bool cstrcmpchar(char *input1, char *input2);
 	static int cstrlen(char *input);
 	static string stringFromStringsWithRange(vector<string> strings, int start, int end);
 	static string upper(string str);

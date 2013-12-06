@@ -29,9 +29,9 @@ using namespace std;
  */
 bool isCommand(string &command)
 {
-	string commands[] = {"load", "execute", "debug", "dump", "help", "assemble", "directory", "clear", "make", "exit", "cd"};
+	string commands[] = {"load", "execute", "debug", "dump", "help", "assemble", "directory", "clear", "make", "exit", "cd", "cat"};
 
-	for(int i = 0; i < 11; i++)
+	for(int i = 0; i < 12; i++)
 	{
 		if(cstr::cstrcmp(command, commands[i]))
 		{

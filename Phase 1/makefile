@@ -3,9 +3,8 @@ CC = g++
 C = gcc
 P = -c
 
-FILES = cli.cpp CCLI/inc/cstr.cpp sicengine.o
+FILES = cli.cpp CCLI/inc/cstr.cpp
 INCLUDES = -ICCLI/inc/
-INCLUDES2 = -I../inc/
 OUT_EXE = -o cli
 
 build: $(FILES)

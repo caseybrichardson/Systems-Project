@@ -28,3 +28,5 @@ Phase 1/todo
 *.output
 
 *.symbols
+
+*.o

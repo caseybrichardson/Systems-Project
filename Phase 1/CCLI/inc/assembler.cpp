@@ -48,6 +48,7 @@ struct intermediateLine
 	vector<string> errors;
 
 	int errorCode;
+	bool isDirective;
 
 	intermediateLine(vector<string> line)
 	{
@@ -256,6 +257,7 @@ void assembler::passTwo()
 	vector<string> tokeLine;
 	recordType lastType = noneType;
 	int lastLoc;
+	bool hittingDirectives;
 
 	ifstream intermediateFile((parsingFilename + ".output").c_str());
 	ofstream objectFile((parsingFilename + ".object").c_str());
@@ -271,8 +273,14 @@ void assembler::passTwo()
 		if(tokeLine.size() > 0)
 		{
 			intermediateLine iLine(tokeLine);
+			iLine.isDirective = !checkOpcodeMapForKey(iLine.opcode);
+			if(iLine.numberErrors > 0)
+			{
+				cerr << RED << "Your program threw an error. I award you no points and will tell you nothing. Good luck." << RESET << endl;
+				break;
+			}
 
-			if(iLine.type != lastType || currentRecordText.str().length() + 11 >= 70)
+			if(iLine.type != lastType || currentRecordText.str().length() + 11 >= 68 || (!iLine.isDirective && hittingDirectives))
 			{
 				switch(lastType)
 				{
@@ -307,6 +315,7 @@ void assembler::passTwo()
 			}
 
 			lastType = iLine.type;
+			hittingDirectives = iLine.isDirective;
 		}
 	}
 }
@@ -522,6 +531,8 @@ string assembler::createObjectCode(intermediateLine &line)
 		case textType:
 			if(checkOpcodeMapForKey(line.opcode))
 			{
+				if(line.operand[line.operand.length() - 2] == ',')
+					line.operand = cstr::csubstr(line.operand, 0, line.operand.length() - 2);
 				if(opcodes[line.opcode].numArgs > 0)
 				{
 					output << hex << setw(2) << setfill('0') << opcodes[line.opcode].hexCode << symbols[line.operand];
@@ -537,33 +548,15 @@ string assembler::createObjectCode(intermediateLine &line)
 
 				if(cstr::cstrcmp(line.opcode, word)) 
 				{
-					output << hex << setw(2) << setfill('0') << symbols[line.operand];
+					output << hex << setw(6) << setfill('0') << hex << cstr::convertStringToIntWithBase(line.operand, 16);
 				} 
 				else if(cstr::cstrcmp(line.opcode, resb)) 
 				{
-					int operandVal = cstr::convertStringToIntWithBase(line.operand, 10);
-					cout << "B" << operandVal << endl;
-					ostringstream space;
-
-					for(int i = 0; i < operandVal; i++)
-					{
-						space << "00";
-					}
-
-					output << hex << space.str();
+					output << "";
 				} 
 				else if(cstr::cstrcmp(line.opcode, resw)) 
 				{
-					int operandVal = cstr::convertStringToIntWithBase(line.operand, 10);
-					cout << operandVal << endl;
-					ostringstream space;
-
-					for(int i = 0; i < operandVal; i++)
-					{
-						space << "000000";
-					}
-
-					output << hex << space.str();
+					output << "";
 				} 
 				else if(cstr::cstrcmp(line.opcode, byte)) 
 				{
